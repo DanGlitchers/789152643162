@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>חושים, אלכוהול והשפעותיו</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&family=Frank+Ruhl+Libre:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a12;
+    --card: #13131f;
+    --accent1: #ff4d6d;
+    --accent2: #4cc9f0;
+    --accent3: #f8961e;
+    --accent4: #7b2d8b;
+    --text: #e8e8f0;
+    --muted: #7777aa;
+    --green: #2dc653;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Heebo', sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* ─── SLIDES ─── */
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    animation: fadeIn 0.5s ease;
+  }
+  .slide.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── NAV ─── */
+  #nav {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 100;
+    background: rgba(19,19,31,0.8);
+    padding: 10px 20px;
+    border-radius: 50px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  #nav button {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'Heebo', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 6px 14px;
+    border-radius: 30px;
+    transition: all 0.2s;
+  }
+  #nav button:hover { color: white; background: rgba(255,255,255,0.07); }
+  #nav button.prev-btn, #nav button.next-btn {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    font-weight: 700;
+  }
+  #nav button.prev-btn:hover, #nav button.next-btn:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+  #slide-counter {
+    color: var(--muted);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+  }
+
+  /* ─── DOTS ─── */
+  #dots {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 100;
+  }
+  .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .dot.active { background: var(--accent2); transform: scale(1.4); }
+
+  /* ─── TYPOGRAPHY ─── */
+  .super-title {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(52px, 8vw, 110px);
+    font-weight: 900;
+    line-height: 1;
+    text-align: center;
+  }
+  .slide-title {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: clamp(32px, 5vw, 64px);
+    font-weight: 900;
+    margin-bottom: 28px;
+    text-align: center;
+  }
+  .subtitle {
+    font-size: clamp(16px, 2.5vw, 22px);
+    color: var(--muted);
+    text-align: center;
+    max-width: 700px;
+    line-height: 1.6;
+  }
+  .body-text {
+    font-size: clamp(15px, 2vw, 20px);
+    line-height: 1.75;
+    max-width: 800px;
+    text-align: center;
+  }
+
+  /* ─── CARDS GRID ─── */
+  .cards {
+    display: grid;
+    gap: 16px;
+    width: 100%;
+    max-width: 900px;
+  }
+  .cards.cols-2 { grid-template-columns: 1fr 1fr; }
+  .cards.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .cards.cols-5 { grid-template-columns: repeat(5, 1fr); }
+
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 24px 20px;
+    border: 1px solid rgba(255,255,255,0.07);
+    transition: transform 0.2s;
+    text-align: center;
+  }
+  .card:hover { transform: translateY(-3px); }
+
+  .card .icon { font-size: 40px; margin-bottom: 10px; }
+  .card h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .card p { font-size: 14px; color: var(--muted); line-height: 1.55; }
+
+  .tag {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  /* ─── BADGE ─── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  /* ─── HIGHLIGHT BOX ─── */
+  .highlight {
+    background: linear-gradient(135deg, rgba(255,77,109,0.12), rgba(123,45,139,0.12));
+    border: 1px solid rgba(255,77,109,0.3);
+    border-radius: 16px;
+    padding: 20px 28px;
+    margin-top: 16px;
+    max-width: 750px;
+    text-align: center;
+  }
+
+  /* ─── GAME SLIDE ─── */
+  .game-container {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 32px;
+    max-width: 700px;
+    width: 100%;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .game-question {
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 24px;
+    line-height: 1.4;
+  }
+
+  .game-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .game-option {
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.1);
+    color: white;
+    border-radius: 12px;
+    padding: 16px;
+    font-family: 'Heebo', sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .game-option:hover:not(:disabled) {
+    border-color: var(--accent2);
+    background: rgba(76,201,240,0.1);
+  }
+  .game-option.correct {
+    border-color: var(--green);
+    background: rgba(45,198,83,0.15);
+    color: #7fffa0;
+  }
+  .game-option.wrong {
+    border-color: var(--accent1);
+    background: rgba(255,77,109,0.12);
+    color: #ff9aaa;
+  }
+
+  .game-feedback {
+    margin-top: 18px;
+    font-size: 18px;
+    text-align: center;
+    min-height: 30px;
+    font-weight: 700;
+  }
+
+  .game-score {
+    font-size: 14px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent2), var(--accent4));
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 30px;
+    font-family: 'Heebo', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 16px;
+  }
+  .btn-primary:hover { transform: scale(1.05); opacity: 0.9; }
+
+  /* ─── SENSE BARS ─── */
+  .sense-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+  .sense-bar label {
+    width: 100px;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .sense-bar .track {
+    flex: 1;
+    height: 16px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 30px;
+    overflow: hidden;
+  }
+  .sense-bar .fill {
+    height: 100%;
+    border-radius: 30px;
+    transition: width 1s ease;
+    width: 0%;
+  }
+
+  /* ─── ALCOHOL METER ─── */
+  .alcohol-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 700px;
+  }
+  .level-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+  }
+  .level-label { width: 110px; font-size: 14px; color: var(--muted); text-align: right; flex-shrink: 0; }
+  .level-bar-track { flex: 1; height: 20px; background: rgba(255,255,255,0.06); border-radius: 30px; overflow: hidden; }
+  .level-bar-fill { height: 100%; border-radius: 30px; }
+  .level-effect { width: 180px; font-size: 13px; flex-shrink: 0; }
+
+  /* ─── TITLE SLIDE BG ─── */
+  .bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    width: 60px; height: 3px;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    border-radius: 10px;
+    margin: 16px auto;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 650px) {
+    .cards.cols-3, .cards.cols-5 { grid-template-columns: 1fr 1fr; }
+    .cards.cols-2 { grid-template-columns: 1fr; }
+    .game-options { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- DOTS -->
+<div id="dots"></div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 0 – TITLE
+════════════════════════════════════════ -->
+<div class="slide active" id="slide-0">
+  <div class="bg-orb" style="width:400px;height:400px;background:rgba(76,201,240,0.07);top:-100px;right:-100px;"></div>
+  <div class="bg-orb" style="width:350px;height:350px;background:rgba(255,77,109,0.07);bottom:-80px;left:-80px;"></div>
+  <div class="badge" style="background:rgba(76,201,240,0.12);color:var(--accent2);border:1px solid rgba(76,201,240,0.3);">
+    🎓 מצגת כיתתית
+  </div>
+  <div class="super-title" style="background:linear-gradient(135deg,#fff,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+    חושים,<br>אלכוהול<br>והשפעותיו
+  </div>
+  <div class="divider"></div>
+  <p class="subtitle">איך אלכוהול ממש משנה את הדרך שבה אנחנו חווים את העולם</p>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 1 – 5 SENSES INTRO
+════════════════════════════════════════ -->
+<div class="slide" id="slide-1">
+  <div class="badge" style="background:rgba(76,201,240,0.12);color:var(--accent2);">👁️ החושים שלנו</div>
+  <div class="slide-title">5 חושים – שערי הגוף לעולם</div>
+  <div class="cards cols-5" style="max-width:950px;">
+    <div class="card">
+      <div class="icon">👁️</div>
+      <h3>ראייה</h3>
+      <p>עיניים קולטות אור ושולחות אותות למוח</p>
+    </div>
+    <div class="card">
+      <div class="icon">👂</div>
+      <h3>שמיעה</h3>
+      <p>אוזניים קולטות תדרי קול</p>
+    </div>
+    <div class="card">
+      <div class="icon">👃</div>
+      <h3>ריח</h3>
+      <p>קולטנים באף מזהים מולקולות</p>
+    </div>
+    <div class="card">
+      <div class="icon">👅</div>
+      <h3>טעם</h3>
+      <p>הלשון מזהה מתוק, מלוח, חמוץ, מר, אומאמי</p>
+    </div>
+    <div class="card">
+      <div class="icon">✋</div>
+      <h3>מישוש</h3>
+      <p>העור חש לחץ, חום, כאב וטקסטורה</p>
+    </div>
+  </div>
+  <div class="highlight">
+    <p class="body-text">כל המידע הזה עובר דרך <strong>מערכת העצבים המרכזית</strong> – כלומר, דרך המוח.<br>וזה בדיוק המקום שאלכוהול פוגע בו.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 2 – HOW ALCOHOL AFFECTS SENSES
+════════════════════════════════════════ -->
+<div class="slide" id="slide-2">
+  <div class="badge" style="background:rgba(255,77,109,0.12);color:var(--accent1);">🍺 אלכוהול על החושים</div>
+  <div class="slide-title">מה קורה לחושים כשמשתכרים?</div>
+  <div style="max-width:700px;width:100%;" id="sense-bars-container">
+    <div class="sense-bar">
+      <label>👁️ ראייה</label>
+      <div class="track"><div class="fill" id="bar-sight" style="background:var(--accent1);"></div></div>
+    </div>
+    <div class="sense-bar">
+      <label>👂 שמיעה</label>
+      <div class="track"><div class="fill" id="bar-hear" style="background:var(--accent2);"></div></div>
+    </div>
+    <div class="sense-bar">
+      <label>✋ מישוש</label>
+      <div class="track"><div class="fill" id="bar-touch" style="background:var(--accent3);"></div></div>
+    </div>
+    <div class="sense-bar">
+      <label>🧠 קואורדינציה</label>
+      <div class="track"><div class="fill" id="bar-coord" style="background:var(--accent4);"></div></div>
+    </div>
+    <div class="sense-bar">
+      <label>⚡ תגובה</label>
+      <div class="track"><div class="fill" id="bar-react" style="background:#f72585;"></div></div>
+    </div>
+  </div>
+  <p style="color:var(--muted);font-size:14px;margin-top:12px;">↑ ככל שהסרגל מלא יותר – כך הפגיעה חזקה יותר</p>
+  <div class="highlight">
+    <p style="font-size:16px;line-height:1.7;">ראייה כפולה, אוזניים שמחמיצות פרטים, ידיים שלא מציתות בדיוק – הכל קורה כי <strong>האלכוהול מאט את המוח</strong></p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 3 – WEAK VS STRONG DRINKS
+════════════════════════════════════════ -->
+<div class="slide" id="slide-3">
+  <div class="badge" style="background:rgba(248,150,30,0.12);color:var(--accent3);">🍷 חוזק המשקאות</div>
+  <div class="slide-title">משקאות חלשים וחזקים</div>
+  <div class="cards cols-3" style="max-width:850px;">
+    <div class="card" style="border-color:rgba(76,201,240,0.3);">
+      <div class="tag" style="background:rgba(76,201,240,0.15);color:var(--accent2);">חלש</div>
+      <div class="icon">🍺</div>
+      <h3>בירה</h3>
+      <p>4–6% אלכוהול<br>משפיע לאט יחסית<br>אבל כמות גדולה = צרות</p>
+    </div>
+    <div class="card" style="border-color:rgba(248,150,30,0.3);">
+      <div class="tag" style="background:rgba(248,150,30,0.15);color:var(--accent3);">בינוני</div>
+      <div class="icon">🍷</div>
+      <h3>יין</h3>
+      <p>10–15% אלכוהול<br>קצת יותר מהיר<br>נפוץ באירועים חברתיים</p>
+    </div>
+    <div class="card" style="border-color:rgba(255,77,109,0.3);">
+      <div class="tag" style="background:rgba(255,77,109,0.15);color:var(--accent1);">חזק</div>
+      <div class="icon">🥃</div>
+      <h3>וויסקי / וודקה</h3>
+      <p>35–50%+ אלכוהול<br>הרגשה מהירה מאוד<br>סכנה גבוהה יותר</p>
+    </div>
+  </div>
+  <div class="highlight">
+    <p style="font-size:16px;line-height:1.7;">
+      <strong>חשוב לדעת:</strong> הגוף מפרק אלכוהול בקצב של כ-0.015% לשעה.<br>
+      "לשתות הרבה מהיר" = צבירת אלכוהול שהגוף לא יכול לטפל בה.
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 4 – ALCOHOL LEVELS + EFFECTS
+════════════════════════════════════════ -->
+<div class="slide" id="slide-4">
+  <div class="badge" style="background:rgba(255,77,109,0.12);color:var(--accent1);">📊 רמות ואפקטים</div>
+  <div class="slide-title">כמה שתית = מה מרגישים?</div>
+  <div class="alcohol-display">
+    <div class="level-row">
+      <div class="level-label">0.02–0.04%</div>
+      <div class="level-bar-track"><div class="level-bar-fill" style="width:15%;background:#4cc9f0;"></div></div>
+      <div class="level-effect" style="font-size:13px;color:#4cc9f0;">קצת רגוע, שמח</div>
+    </div>
+    <div class="level-row">
+      <div class="level-label">0.05–0.08%</div>
+      <div class="level-bar-track"><div class="level-bar-fill" style="width:30%;background:#90e0a0;"></div></div>
+      <div class="level-effect" style="font-size:13px;color:#90e0a0;">פחות עכבות, שיפוט נפגע</div>
+    </div>
+    <div class="level-row">
+      <div class="level-label">0.08–0.15%</div>
+      <div class="level-bar-track"><div class="level-bar-fill" style="width:52%;background:#f8961e;"></div></div>
+      <div class="level-effect" style="font-size:13px;color:#f8961e;">קואורד. נפגעת, ראייה כפולה</div>
+    </div>
+    <div class="level-row">
+      <div class="level-label">0.15–0.25%</div>
+      <div class="level-bar-track"><div class="level-bar-fill" style="width:72%;background:#f4442e;"></div></div>
+      <div class="level-effect" style="font-size:13px;color:#f4442e;">בלבול, הקאות, סכנה</div>
+    </div>
+    <div class="level-row">
+      <div class="level-label">מעל 0.3%</div>
+      <div class="level-bar-track"><div class="level-bar-fill" style="width:95%;background:#ff0058;"></div></div>
+      <div class="level-effect" style="font-size:13px;color:#ff0058;">אובדן הכרה / מוות</div>
+    </div>
+  </div>
+  <div class="highlight">
+    <p style="font-size:15px;">⚠️ בישראל, נהיגה מותרת עד 0.05% – ומעל זה עבירה פלילית</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 5 – ENERGY DRINKS COMBO
+════════════════════════════════════════ -->
+<div class="slide" id="slide-5">
+  <div class="badge" style="background:rgba(247,37,133,0.12);color:#f72585);">⚡ משקאות אנרגיה</div>
+  <div class="slide-title">אלכוהול + אנרגיה = מסוכן</div>
+  <div class="cards cols-2" style="max-width:800px;">
+    <div class="card" style="border-color:rgba(76,201,240,0.25);">
+      <div class="icon">🧠</div>
+      <h3>מה אלכוהול עושה?</h3>
+      <p>מרגיע את מערכת העצבים<br><strong>מאט תגובות</strong><br>גורם לנמנום</p>
+    </div>
+    <div class="card" style="border-color:rgba(247,37,133,0.25);">
+      <div class="icon">⚡</div>
+      <h3>מה אנרגיה עושה?</h3>
+      <p>מעוררת ומגבירה קצב לב<br><strong>מסתירה את תחושת השכרות</strong><br>גורמת לשתות יותר</p>
+    </div>
+  </div>
+  <div class="highlight" style="background:linear-gradient(135deg,rgba(247,37,133,0.15),rgba(255,77,109,0.1));border-color:rgba(247,37,133,0.4);">
+    <p style="font-size:17px;font-weight:700;color:#ff6b9d;">⚠️ הקפאין מסתיר את ההרגשה של שכרות – אבל האלכוהול עדיין שם!</p>
+    <p style="font-size:15px;color:var(--muted);margin-top:8px;">המוח לא מבין שהגוף בסכנה. תאונות ואלימות עולות בצורה דרמטית.</p>
+  </div>
+  <div class="cards cols-3" style="max-width:700px;margin-top:12px;">
+    <div class="card" style="padding:16px;">
+      <div class="icon" style="font-size:28px;">🚗</div>
+      <p style="font-size:13px;">3× יותר סיכוי לנהוג שיכור</p>
+    </div>
+    <div class="card" style="padding:16px;">
+      <div class="icon" style="font-size:28px;">💊</div>
+      <p style="font-size:13px;">לב עובד קשה מדי</p>
+    </div>
+    <div class="card" style="padding:16px;">
+      <div class="icon" style="font-size:28px;">📈</div>
+      <p style="font-size:13px;">שותים כפול ממה שרצו</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 6 – ALCOHOL IS MORE THAN A DRINK
+════════════════════════════════════════ -->
+<div class="slide" id="slide-6">
+  <div class="badge" style="background:rgba(123,45,139,0.2);color:#c77dff);">🧪 אלכוהול זה לא רק משקה</div>
+  <div class="slide-title">אלכוהול הוא חומר כימי</div>
+  <div class="cards cols-2" style="max-width:800px;">
+    <div class="card">
+      <div class="icon">🧪</div>
+      <h3>אתנול (C₂H₅OH)</h3>
+      <p>זה הכימיקל שנמצא בכל משקה אלכוהולי. הגוף מפרק אותו לאצטלדהיד – <strong>רעל</strong>.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🫀</div>
+      <h3>פוגע בכל האיברים</h3>
+      <p>כבד, לב, מוח, לבלב, מערכת עיכול – אלכוהול משפיע על <strong>הכל</strong>, לא רק על הראש.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🔁</div>
+      <h3>יוצר תלות</h3>
+      <p>המוח מסתגל לאלכוהול ודורש יותר ויותר כדי להרגיש אותו דבר.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🚫</div>
+      <h3>לא ניתן "לנטרל"</h3>
+      <p>קפה, מים, אוכל – <strong>לא מאיצים</strong> את פירוק האלכוהול. רק זמן עובד.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 7 – SOCIAL EFFECTS
+════════════════════════════════════════ -->
+<div class="slide" id="slide-7">
+  <div class="badge" style="background:rgba(76,201,240,0.1);color:var(--accent2);">👥 חברה</div>
+  <div class="slide-title">השפעות חברתיות של אלכוהול</div>
+  <div class="cards cols-3" style="max-width:900px;">
+    <div class="card" style="border-color:rgba(255,77,109,0.25);">
+      <div class="icon">💬</div>
+      <h3>לחץ חברתי</h3>
+      <p>"כולם שותים"<br>"אל תהיה ילד"<br>הכי נפוץ בבני נוער</p>
+    </div>
+    <div class="card" style="border-color:rgba(248,150,30,0.25);">
+      <div class="icon">🤝</div>
+      <h3>שייכות</h3>
+      <p>תחושה של "כולם יחד"<br>אבל התחושה מדומה<br>ומתפוגגת עם האלכוהול</p>
+    </div>
+    <div class="card" style="border-color:rgba(247,37,133,0.25);">
+      <div class="icon">😤</div>
+      <h3>אלימות</h3>
+      <p>אלכוהול מוריד עכבות<br>הרבה תגרות קשורות<br>לשתייה מוגזמת</p>
+    </div>
+    <div class="card" style="border-color:rgba(123,45,139,0.25);">
+      <div class="icon">😔</div>
+      <h3>בידוד</h3>
+      <p>שתייה בלי שליטה<br>פוגעת ביחסים<br>ומובילה לבדידות</p>
+    </div>
+    <div class="card" style="border-color:rgba(76,201,240,0.25);">
+      <div class="icon">📉</div>
+      <h3>לימודים / עבודה</h3>
+      <p>ריכוז ירוד<br>חוסר שינה<br>פגיעה בביצועים</p>
+    </div>
+    <div class="card" style="border-color:rgba(45,198,83,0.25);">
+      <div class="icon">🧠</div>
+      <h3>מוח צעיר</h3>
+      <p>עד גיל 25 המוח מתפתח<br>אלכוהול פוגע בפיתוח<br>בצורה קבועה!</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 8 – GAME TIME!
+════════════════════════════════════════ -->
+<div class="slide" id="slide-8">
+  <div class="bg-orb" style="width:300px;height:300px;background:rgba(76,201,240,0.07);top:-50px;left:-50px;"></div>
+  <div class="bg-orb" style="width:250px;height:250px;background:rgba(255,77,109,0.07);bottom:-50px;right:-50px;"></div>
+  
+  <div class="badge" style="background:rgba(45,198,83,0.15);color:#2dc653;font-size:18px;padding:10px 24px;">🎮 עכשיו – משחק!</div>
+  <div class="slide-title" style="font-size:clamp(40px,6vw,80px);">בואו נבדוק<br>מה זכרתם!</div>
+  <p class="subtitle">המורה יוביל את הכיתה<br>דרך שאלות הטריוויה 🏆</p>
+  <div style="margin-top:20px;display:flex;gap:16px;flex-wrap:wrap;justify-content:center;">
+    <div class="card" style="padding:18px 24px;border-color:rgba(45,198,83,0.3);">
+      <div style="font-size:30px;margin-bottom:6px;">❓</div>
+      <p style="font-size:14px;">שאלות על מה שלמדנו</p>
+    </div>
+    <div class="card" style="padding:18px 24px;border-color:rgba(76,201,240,0.3);">
+      <div style="font-size:30px;margin-bottom:6px;">⏱️</div>
+      <p style="font-size:14px;">זמן מוגבל לכל שאלה</p>
+    </div>
+    <div class="card" style="padding:18px 24px;border-color:rgba(248,150,30,0.3);">
+      <div style="font-size:30px;margin-bottom:6px;">🏆</div>
+      <p style="font-size:14px;">מי שמנצח מקבל כבוד!</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 9 – INTERACTIVE QUIZ
+════════════════════════════════════════ -->
+<div class="slide" id="slide-9">
+  <div class="slide-title" style="margin-bottom:8px;">טריוויה!</div>
+  <div class="game-container">
+    <div class="game-score" id="game-score">שאלה 1 מתוך 5 | ניקוד: 0</div>
+    <div class="game-question" id="game-question">טוען שאלה...</div>
+    <div class="game-options" id="game-options"></div>
+    <div class="game-feedback" id="game-feedback"></div>
+    <div style="text-align:center;">
+      <button class="btn-primary" id="game-next" style="display:none;" onclick="nextQuestion()">שאלה הבאה ➡️</button>
+      <button class="btn-primary" id="game-restart" style="display:none;" onclick="restartGame()">🔄 שחק שוב</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div id="nav">
+  <button class="prev-btn" onclick="changeSlide(-1)">← הקודם</button>
+  <div id="slide-counter">1 / 10</div>
+  <button class="next-btn" onclick="changeSlide(1)">הבא →</button>
+</div>
+
+<script>
+const totalSlides = 10;
+let currentSlide = 0;
+
+function buildDots() {
+  const d = document.getElementById('dots');
+  for (let i = 0; i < totalSlides; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => goToSlide(i);
+    d.appendChild(dot);
+  }
+}
+
+function goToSlide(n) {
+  document.getElementById('slide-' + currentSlide).classList.remove('active');
+  document.querySelectorAll('.dot')[currentSlide].classList.remove('active');
+  currentSlide = n;
+  document.getElementById('slide-' + currentSlide).classList.add('active');
+  document.querySelectorAll('.dot')[currentSlide].classList.add('active');
+  document.getElementById('slide-counter').textContent = (currentSlide + 1) + ' / ' + totalSlides;
+  onSlideEnter(currentSlide);
+}
+
+function changeSlide(dir) {
+  const next = (currentSlide + dir + totalSlides) % totalSlides;
+  goToSlide(next);
+}
+
+function onSlideEnter(n) {
+  if (n === 2) animateSenseBars();
+}
+
+function animateSenseBars() {
+  const data = [
+    { id: 'bar-sight', v: 80 },
+    { id: 'bar-hear', v: 60 },
+    { id: 'bar-touch', v: 70 },
+    { id: 'bar-coord', v: 95 },
+    { id: 'bar-react', v: 90 },
+  ];
+  data.forEach(({ id, v }) => {
+    const el = document.getElementById(id);
+    if (el) { el.style.width = '0%'; setTimeout(() => { el.style.width = v + '%'; }, 100); }
+  });
+}
+
+// ─── QUIZ ───
+const questions = [
+  {
+    q: "כמה אחוזי אלכוהול יש בבירה ממוצעת?",
+    opts: ["1–2%", "4–6%", "20–25%", "40–50%"],
+    correct: 1,
+    exp: "✅ נכון! בירה מכילה בדרך כלל 4–6% אלכוהול."
+  },
+  {
+    q: "מה קורה כשמשתים אלכוהול עם משקה אנרגיה?",
+    opts: ["האלכוהול מתבטל", "מרגישים פחות שיכורים אבל האלכוהול עדיין שם", "זה בטוח לחלוטין", "הקפה מנקה את הכבד"],
+    correct: 1,
+    exp: "✅ נכון! הקפאין מסתיר את השכרות – וזו הסכנה הגדולה!"
+  },
+  {
+    q: "איזה חוש מושפע הכי הרבה מאלכוהול בנהיגה?",
+    opts: ["ריח", "טעם", "קואורדינציה ותגובה", "שמיעה"],
+    correct: 2,
+    exp: "✅ קואורדינציה וזמן תגובה – בדיוק למה שתייה ונהיגה הורגת!"
+  },
+  {
+    q: "עד איזה גיל המוח עדיין מתפתח?",
+    opts: ["18", "21", "25", "30"],
+    correct: 2,
+    exp: "✅ נכון! עד גיל 25 המוח בפיתוח – אלכוהול פוגע בו בצורה קבועה."
+  },
+  {
+    q: "מה האחוז שמעליו שתיית אלכוהול עלולה לגרום לאובדן הכרה?",
+    opts: ["0.05%", "0.1%", "0.2%", "0.3%"],
+    correct: 3,
+    exp: "✅ מעל 0.3% – סכנת חיים ממשית!"
+  },
+];
+
+let qIndex = 0, score = 0, answered = false;
+
+function loadQuestion() {
+  answered = false;
+  const q = questions[qIndex];
+  document.getElementById('game-question').textContent = q.q;
+  document.getElementById('game-feedback').textContent = '';
+  document.getElementById('game-next').style.display = 'none';
+  document.getElementById('game-restart').style.display = 'none';
+  document.getElementById('game-score').textContent = 'שאלה ' + (qIndex + 1) + ' מתוך ' + questions.length + ' | ניקוד: ' + score;
+  const opts = document.getElementById('game-options');
+  opts.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'game-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    opts.appendChild(btn);
+  });
+}
+
+function selectAnswer(i) {
+  if (answered) return;
+  answered = true;
+  const q = questions[qIndex];
+  const btns = document.querySelectorAll('.game-option');
+  btns.forEach(b => b.disabled = true);
+  btns[q.correct].classList.add('correct');
+  if (i === q.correct) {
+    score++;
+    document.getElementById('game-feedback').style.color = '#2dc653';
+    document.getElementById('game-feedback').textContent = '🎉 ' + q.exp;
+  } else {
+    btns[i].classList.add('wrong');
+    document.getElementById('game-feedback').style.color = 'var(--accent1)';
+    document.getElementById('game-feedback').textContent = '❌ לא נכון. ' + q.exp;
+  }
+  document.getElementById('game-score').textContent = 'שאלה ' + (qIndex + 1) + ' מתוך ' + questions.length + ' | ניקוד: ' + score;
+  if (qIndex < questions.length - 1) {
+    document.getElementById('game-next').style.display = 'inline-block';
+  } else {
+    setTimeout(showFinalScore, 800);
+  }
+}
+
+function nextQuestion() {
+  qIndex++;
+  loadQuestion();
+}
+
+function showFinalScore() {
+  const pct = Math.round((score / questions.length) * 100);
+  document.getElementById('game-question').textContent = 'סיימתם! קיבלתם ' + score + ' מתוך ' + questions.length + ' (' + pct + '%)';
+  document.getElementById('game-options').innerHTML = '';
+  const msg = pct === 100 ? '🏆 מושלם! אתם מומחים!' : pct >= 60 ? '👍 יפה מאוד!' : '📚 כדאי לחזור על החומר!';
+  document.getElementById('game-feedback').textContent = msg;
+  document.getElementById('game-feedback').style.color = pct >= 60 ? '#2dc653' : '#f8961e';
+  document.getElementById('game-restart').style.display = 'inline-block';
+  document.getElementById('game-next').style.display = 'none';
+}
+
+function restartGame() {
+  qIndex = 0; score = 0;
+  loadQuestion();
+}
+
+// keyboard navigation
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') changeSlide(1);
+  if (e.key === 'ArrowRight' || e.key === 'ArrowUp') changeSlide(-1);
+});
+
+buildDots();
+loadQuestion();
+</script>
+</body>
+</html>
